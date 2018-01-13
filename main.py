@@ -1,6 +1,7 @@
 import base64
 import io
 import os
+import datetime
 
 import google.cloud.storage
 import google.cloud.vision
@@ -29,7 +30,7 @@ def upload_photo():
     storage_client = storage.Client()
 
     # Get the Cloud Storage bucket that the file will be uploaded to.
-    cloud_bucket = 'hackclinic-192010.appspot.com'
+    cloud_bucket = 'hacky-user-images'
     bucket = storage_client.get_bucket(os.environ.get(cloud_bucket))
 
     # Create a new blob and upload the file's content to Cloud Storage.
@@ -53,6 +54,7 @@ def upload_photo():
     labels = response.label_annotations
     faces = response.face_annotations
     web_entities = response.web_detection.web_entities
+    stamp = datetime.date.today()
 
     # Create a Cloud Datastore client
     datastore_client = datastore.Client()
