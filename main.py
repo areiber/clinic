@@ -4,47 +4,10 @@ import os
 
 import google.cloud.storage
 import google.cloud.vision
-from google.cloud.datastore
+import google.cloud.datastore
 from flask import Flask, redirect, render_template, request
 
-# Create a storage client.
-storage_client = google.cloud.storage.Client()
-
-# TODO (Developer): Replace this with your Cloud Storage bucket name.
-bucket_name = 'hackclinic-192010.appspot.com'
-bucket = storage_client.get_bucket(bucket_name)
-
-# TODO (Developer): Replace this with the name of the local file to upload.
-source_file_name = 'Local file to upload, for example ./file.txt'
-blob = bucket.blob(os.path.basename(source_file_name))
-
-# Upload the local file to Cloud Storage.
-blob.upload_from_filename(source_file_name)
-
-print('File {} uploaded to {}.'.format(
-    source_file_name,
-    bucket))
-
-# Create a Vision client.
-vision_client = google.cloud.vision.ImageAnnotatorClient()
-
-# TODO (Developer): Replace this with the name of the local image
-# file to analyze.
-image_file_name = 'Local image to analyze, for example ./cat.jpg'
-with io.open(image_file_name, 'rb') as image_file:
-    content = image_file.read()
-
-# Use Vision to label the image based on content.
-image = google.cloud.vision.types.Image(content=content)
-response = vision_client.label_detection(image=image)
-
-print('Labels:')
-for label in response.label_annotations:
-    print(label.description)
-
-
 app = Flask(__name__)
-
 
 @app.route('/')
 def homepage():
@@ -66,7 +29,8 @@ def upload_photo():
     storage_client = storage.Client()
 
     # Get the Cloud Storage bucket that the file will be uploaded to.
-    bucket = storage_client.get_bucket(os.environ.get('CLOUD_STORAGE_BUCKET'))
+    cloud_bucket = 'hackclinic-192010.appspot.com'
+    bucket = storage_client.get_bucket(os.environ.get(cloud_bucket))
 
     # Create a new blob and upload the file's content to Cloud Storage.
     photo = request.files['file']
@@ -82,7 +46,7 @@ def upload_photo():
     vision_client = vision.ImageAnnotatorClient()
 
     # Retrieve a Vision API response for the photo stored in Cloud Storage
-    source_uri = 'gs://{}/{}'.format(os.environ.get('CLOUD_STORAGE_BUCKET'), blob.name)
+    source_uri = 'gs://{}/{}'.format(os.environ.get(cloud_bucket), blob.name)
     response = vision_client.annotate_image({
         'image': {'source': {'image_uri': source_uri}},
     })
