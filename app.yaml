@@ -1,3 +1,9 @@
-entrypoint: gcloud app deploy
-env: flex
 runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT main:app
+
+runtime_config:
+  python_version: 3
+
+env_variables:
+  CLOUD_STORAGE_BUCKET: 'hacky-user-images'
